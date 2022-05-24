@@ -3,6 +3,7 @@ const {Worker} = require('node:worker_threads');
 const {States} = require('./lib/states');
 const {Chat} = require('./lib/states/chat');
 const {randomInt} = require('node:crypto');
+const {fullfilParameters} = require('./lib/utils');
 
 const network = new Network(8080);
 const states = new States();
@@ -10,13 +11,39 @@ const workers = [];
 // username -> clientID
 const userMapping = {};
 
+const AccessPartition = {
+  everyone: [
+    'LOGIN',
+    'REGISTER',
+  ],
+  player: [
+    'JOINCHAT',
+    'SAYCHAT',
+  ],
+  admin: [
+    'SETSETTING',
+  ],
+};
+
+// dispather
 network.on('message', async (clientID, msg) => {
   console.log(clientID, msg);
 
+  let privilege = 'everyone';
+
+
+  if (!(clientID in userMapping)) {
+    privilege = 'everyone';
+  } else if (clientID in userMapping) {
+  }
+
   switch (msg.action) {
     case 'JOINCHAT': {
-      userMapping[msg.parameters.hosterName] = clientID;
-      workers[randomInt(0, workers.length)].postMessage(msg);
+      userMapping[msg.parameters.username] = clientID;
+
+      if (msg.parameters.chatName) {
+        workers[randomInt(0, workers.length)].postMessage(msg);
+      }
       break;
     }
     case 'SAYCHAT': {
@@ -37,6 +64,7 @@ network.on('message', async (clientID, msg) => {
   }
 });
 
+// worker bindings
 for (let i=0; i<4; i++) {
   const worker = new Worker('./lib/worker.js');
   // listeners for states alternation

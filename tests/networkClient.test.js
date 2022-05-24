@@ -8,7 +8,7 @@ client.on('open', () => {
   client.send(JSON.stringify({
     action: 'JOINCHAT',
     parameters: {
-      hosterName: 'test',
+      username: 'test',
       password: 'test',
       description: 'test',
       chatName: 'test',
