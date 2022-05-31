@@ -5,7 +5,7 @@ const {Chat} = require('./lib/states/chat');
 const {randomInt} = require('node:crypto');
 const {fullfilParameters} = require('./lib/utils');
 
-const network = new Network(8080);
+const network = new Network(8081);
 const states = new States();
 const workers = [];
 // username -> clientID
